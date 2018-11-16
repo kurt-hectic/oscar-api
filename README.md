@@ -17,6 +17,7 @@ A spring boot project with a Spring and JPA, Hibernate and XSLT based approach t
 1. download STS (Eclipse)
 2. import repository
 3. run as "Spring Boot App"
+4. allow network connections for schema download
 
 ## TODO
 - schema validation for "native" simple XML format
