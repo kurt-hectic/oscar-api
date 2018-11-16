@@ -22,7 +22,7 @@ A spring boot project with a Spring and JPA, Hibernate and XSLT based approach t
 4. allow network connections for schema download
 
 ## XML schema
-
+The DB model has the following complexity. Can be imported and exported as XML, WMDR or JSON.
 
 ```xml 
    <station>
