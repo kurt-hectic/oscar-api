@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<station>
+	<name>Timo's ()12334)</name>
+	<established>2017-02-24T23:00:00.000+0000</established>
+	<observations>
+		<observations>
+			<variable>224</variable>
+			<deployment>
+					<beginning>2017-02-24T23:00:00.000+0000</beginning>
+					<end/>
+					<observationsource/>
+					<schedules>
+						<schedules>
+							<monthfrom>12</monthfrom>
+							<monthto>0</monthto>
+							<dayfrom>1</dayfrom>
+							<dayto>7</dayto>
+							<hourfrom>0</hourfrom>
+							<hourto>23</hourto>
+							<minutefrom>0</minutefrom>
+							<minuteto>59</minuteto>
+							<interval>60</interval>
+							<international>true</international>
+						</schedules>
+					</schedules>
+			</deployment>
+		</observations>
+	</observations>
+	<locations>
+		<locations>
+			<longitude>10.1</longitude>
+			<latitude>20.2</latitude>
+			<elevation>123.456</elevation>
+			<from>2017-02-24T23:00:00.000+0000</from>
+			<to/>
+		</locations>
+	</locations>
+	<countryCode>DEU</countryCode>
+	<region>Europe</region>
+	<wigosID>
+		<wigosID>0-20000-1-12334</wigosID>
+		<primary>true</primary>
+	</wigosID>
+</station>
