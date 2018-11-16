@@ -24,7 +24,8 @@ A spring boot project with a Spring and JPA, Hibernate and XSLT based approach t
 ## XML schema
 
 
-<station>
+```xml 
+   <station>
 	<name>Timo's test station</name>
 	<established>2017-02-24</established>
 	<observations>
@@ -67,6 +68,7 @@ A spring boot project with a Spring and JPA, Hibernate and XSLT based approach t
 		<primary>true</primary>
 	</wigosID>
 </station>
+```
 
 ## TODO
 - schema validation for "native" simple XML format
