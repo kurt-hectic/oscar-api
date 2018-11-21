@@ -34,7 +34,7 @@ public class DemoData {
 		Observation o = new Observation( 224 ,  new Deployment( established, Schedule.getSchedule(Schedule.int247) ) );
 		s.getObservations().add(o);
 
-		repo.save(   s    );
+		//repo.save(   s    );
 		
 	}
 	

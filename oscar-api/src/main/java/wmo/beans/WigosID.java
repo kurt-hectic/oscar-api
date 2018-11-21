@@ -1,10 +1,12 @@
 package wmo.beans;
 
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Pattern;
 
 @Entity
@@ -15,6 +17,7 @@ public class WigosID {
 	private long id;
 
 	@Pattern(regexp = "^[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-zA-Z0-9]+$")
+	@Column(unique=true)
 	private String wigosID;
 	
 	private boolean isPrimary = false;

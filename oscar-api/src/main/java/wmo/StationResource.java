@@ -41,12 +41,14 @@ public class StationResource {
 	public List<Station> retrieveAllStations() {
 		return stationRepository.findAll();
 	}
+	
+	
 
 
 	@RequestMapping(
 			  method = RequestMethod.GET, 
 			  value = "/stations/{id}", 
-			  produces = "application/wmds"
+			  produces = "application/wmdr"
 			)
 	@ResponseBody
 	public Station retrieveStationWMO(@PathVariable long id) throws StationNotFoundException, JsonProcessingException, TransformerException {
@@ -67,6 +69,34 @@ public class StationResource {
 
 		return station.get();
 	}
+	
+	@GetMapping("/stations/bywigosid/{wid}")
+	public Station retrieveStationByWigosID(@PathVariable String wid) throws StationNotFoundException {
+		List<Station> stations = stationRepository.findByWigosIDs_WigosID(wid);
+
+		if (stations.isEmpty() )
+			throw new StationNotFoundException("wigosID-" + wid);
+
+		return stations.get(0);
+	}
+	
+	@RequestMapping(
+			  method = RequestMethod.GET, 
+			  value = "/stations/bywigosid/{wid}", 
+			  produces = "application/wmdr"
+			)
+	@ResponseBody
+	public Station retrieveStationByWigosIDWMDR(@PathVariable String wid) throws StationNotFoundException, JsonProcessingException, TransformerException {
+		List<Station> stations = stationRepository.findByWigosIDs_WigosID(wid);
+
+		if (stations.isEmpty() )
+			throw new StationNotFoundException("wigosID-" + wid);
+
+		return stations.get(0);
+	}	
+
+
+	
 
 	@DeleteMapping("/stations/{id}")
 	public void deleteStation(@PathVariable long id) {
@@ -96,11 +126,14 @@ public class StationResource {
 		Station savedStation = stationRepository.save(station);
 
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-				.buildAndExpand(savedStation.getId()).toUri();
+				.buildAndExpand(
+						savedStation.getId())
+				.toUri();
 
 		return ResponseEntity.created(location).build();
 	}
 	
+		
 	@PutMapping("/stations/{id}")
 	public ResponseEntity<Object> updateStation(@RequestBody Station station, @PathVariable long id) {
 

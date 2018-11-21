@@ -3,6 +3,8 @@ import java.util.Date;
 
 import javax.xml.transform.TransformerException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +24,26 @@ import wmo.beans.ExceptionResponse; ;
 @RestController
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	
   @ExceptionHandler(Exception.class)
   public final ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
     ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(),
         request.getDescription(false));
-    return new ResponseEntity(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    ex.printStackTrace();
+    return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
+  
   @ExceptionHandler(StationNotFoundException.class)
-  public final ResponseEntity<Object> handleStationNotFoundException(StationNotFoundException ex, WebRequest request) {
-    ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(),
+  public final ResponseEntity<ExceptionResponse> handleStationNotFoundException(StationNotFoundException ex, WebRequest request) {
+	  
+	  logger.info("exception handler for Station Not Found invoked");
+	  
+	  ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(),
         request.getDescription(false));
-    return new ResponseEntity(exceptionResponse, HttpStatus.NOT_FOUND);
+    return new ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_FOUND);
   }
   
   @Override
@@ -44,12 +54,12 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 	  if (ex.contains(SAXException.class)) {
 		  ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), "XML validation failed",
 			        ex.getMessage());
-			    return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+			    return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
 	  } 
 	  else if ( ex.contains(TransformerException.class) ) { 
 		  ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), "XML transformation failed",
 			        ex.getMessage());
-			    return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+			    return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
 		  
 	  }
 	  else {

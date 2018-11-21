@@ -1,15 +1,12 @@
 package wmo;
-import java.io.ByteArrayInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringBufferInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
@@ -24,6 +21,8 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -37,7 +36,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
-import org.codehaus.stax2.io.Stax2StringSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,31 +50,35 @@ public class WMDSConverter extends AbstractHttpMessageConverter<Station> {
 	Transformer back_transformer;
 	Validator validator;
 
-
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	boolean doValidation;
 
 
-	public WMDSConverter() throws TransformerConfigurationException, MalformedURLException, SAXException {
-		super(new MediaType("application", "wmds"));
+	@Autowired 
+	public WMDSConverter(@Value("${doValidation}") final boolean doValidation ) throws TransformerConfigurationException, MalformedURLException, SAXException {
+		super(new MediaType("application", "wmdr"));
 		xmlMapper  = new XmlMapper( );
 		xmlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		xmlMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd")) ; //FIXME: this should better be configured with a bean and autoconfigured
 
 		TransformerFactory tFactory  = TransformerFactory.newInstance();
 
-		transformer = tFactory.newTransformer( new javax.xml.transform.stream.StreamSource("transformations/xml2wmds.xsl"));
-		back_transformer = tFactory.newTransformer( new javax.xml.transform.stream.StreamSource("transformations/wmds2xml.xsl"));
-		
-		
-		logger.info("preparing schema");
+		transformer = tFactory.newTransformer( new StreamSource("transformations/xml2wmdr.xsl"));
+		back_transformer = tFactory.newTransformer( new StreamSource("transformations/wmdr2xml.xsl"));
 
-		SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		Schema schema = sf.newSchema(new URL("http://schemas.wmo.int/wmdr/1.0RC8/wmdr.xsd"));
+		this.doValidation=doValidation;
 
-		validator = schema.newValidator();
+		if (doValidation) {
+			logger.info("preparing schema");
 
-		logger.info("schema validator created");
-		
+			SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			Schema schema = sf.newSchema(new URL("http://schemas.wmo.int/wmdr/1.0RC8/wmdr.xsd"));
+
+			validator = schema.newValidator();
+
+			logger.info("schema validator created");
+		}
+
 	}
 
 
@@ -96,17 +98,18 @@ public class WMDSConverter extends AbstractHttpMessageConverter<Station> {
 
 		try {
 
-			logger.info("validating schema of input");
-			validator.validate(new StreamSource(reader));
-			logger.info("schema validated");
+			if (this.doValidation) {
+				logger.info("validating schema of input");
+				validator.validate(new StreamSource(reader));
+				logger.info("schema validated");
+			}
 
-			
 			StringWriter writer = new StringWriter();
-			
+
 			back_transformer.transform(
 					new StreamSource( new StringReader(requestBody)  ) , 
 					new StreamResult(writer));
-			
+
 			station = xmlMapper.readValue(writer.toString(), Station.class);
 
 		} catch (TransformerException | SAXException e) {
@@ -127,9 +130,8 @@ public class WMDSConverter extends AbstractHttpMessageConverter<Station> {
 			StringWriter writer = new StringWriter();
 
 			transformer.transform(
-					new javax.xml.transform.stream.StreamSource(reader), 
-					new javax.xml.transform.stream.StreamResult(writer));
-
+					new StreamSource(reader), 
+					new StreamResult(writer));
 
 			outputStream.write(writer.toString().getBytes() );
 			outputStream.close();
